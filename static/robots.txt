@@ -1,0 +1,5 @@
+Sitemap: https://turvalisus.com/static/sitemap.xml
+
+User-Agent: *
+Disallow: /
+Allow: /main/welcome

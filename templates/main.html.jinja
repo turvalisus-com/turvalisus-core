@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="{{ locale.lang }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ locale["page_title"] }}</title>
+    <meta name="description" content="{{ locale.text }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://turvalisus.com/">
+    <meta property="og:title" content="{{ locale.page_title }}">
+    <meta property="og:description" content="{{ locale.text }}">
+    <meta property="og:image" content="https://turvalisus.com/static/turvalisus-banner-social-cards.png">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://turvalisus.com/">
+    <meta property="twitter:link" content="@turvalisuscom">
+    <meta property="twitter:title" content="{{ locale.page_title }}">
+    <meta property="twitter:description" content="{{ locale.text }}">
+    <meta property="twitter:image" content="https://turvalisus.com/static/turvalisus-banner-social-cards.png">
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.24.0/dist/axios.min.js"></script>
+    <script src="/static/wrapper.min.js"></script>
+    <meta name="theme-color" content="#5643fd"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,200;0,400;1,200;1,400&display=swap');
+    </style>
+    <style>
+        body {
+            background-color: #fff;
+            color: #5643fd;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        h2, h3 {
+            font-weight: 400;
+            font-size: 2.5rem;
+        }
+
+        p {
+            font-weight: 100;
+            font-size: 1.5rem;
+        }
+
+        .wrapper {
+            display: flex;
+            flex-direction: row;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .split {
+            width: 40vw;
+        }
+
+        .inputs {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+        }
+
+        ::placeholder {
+            color: rgba(86, 67, 253, 0.75);
+        }
+
+        :-ms-input-placeholder {
+          color: rgba(86, 67, 253, 0.75);
+        }
+
+        .start {
+            background-color: #5643fd;
+            border: none;
+            color: #fff;
+            text-align: center;
+            font-size: 1.5rem;
+            margin-left: -11rem;
+            border-top-right-radius: 1rem;
+            border-bottom-right-radius: 1rem;
+            cursor: pointer;
+            height: 4rem;
+            width: 11rem;
+        }
+
+        .name {
+            box-sizing: border-box;
+            font-size: 1.5rem;
+            font-weight: 400;
+            padding-left: 1rem;
+            padding-right: 12rem;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            text-align: center;
+            border: 1px solid #5643fd;
+            border-radius: 1rem;
+            background-color: #fff;
+            color: #5643fd;
+            height: 4rem;
+            width: 28rem;
+        }
+
+        .inputs {
+            align-items: center;
+        }
+
+        .language {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+        }
+
+        #lang-select {
+            font-size: 2rem;
+            border: 1px dashed #5643fd;
+            border-radius: 1rem;
+            padding: 0.3rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        #logo-sm {
+            display: none;
+        }
+
+        @media (max-width: 500px) {
+            h2 {
+                text-align: left;
+            }
+
+            #lang-select {
+                font-size: 1.8rem;
+                padding-top: 0.1rem;
+                padding-bottom: 0.1rem;
+                margin-top: 0.1rem;
+                height: 2.7rem;
+                box-sizing: border-box;
+            }
+
+            #logo-lg {
+                display: none;
+            }
+
+            #logo-sm {
+                display: block;
+                position: absolute;
+                top: 1rem;
+                left: 1rem;
+                margin: 0;
+                padding-top: 0.1rem;
+                padding-bottom: 0.1rem;
+            }
+
+            .wrapper {
+                margin-top: 3rem;
+            }
+        }
+
+        @media (max-width: 1439px) {
+            .wrapper {
+                flex-direction: column;
+            }
+
+            .split {
+                width: 80vw;
+                margin-bottom: 1rem;
+            }
+
+            .inputs {
+                flex-direction: column;
+            }
+
+            .name {
+                width: min(600px, 75vw);
+                padding-left: 0;
+                padding-right: 0;
+                border-radius: 1rem;
+                margin-bottom: 1rem;
+                height: 3rem;
+            }
+
+            .start {
+                width: min(600px, 75vw);;
+                margin-left: 0;
+                border: 3px solid #5643fd;
+                border-radius: 1rem;
+                height: 3rem;
+            }
+
+            h3 {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h2 id="logo-sm">{{ locale["title"] }}</h2>
+    <div class="language">
+        <select id="lang-select">
+        </select>
+    </div>
+    <div class="wrapper">
+        <div class="split">
+            <article>
+                <h2 id="logo-lg">{{ locale["title"] }}</h2>
+                <p>{{ locale["text"] }}</p>
+            </article>
+        </div>
+
+        <div class="split">
+            <h3>{{ locale["name"] }}</h3>
+            <div class="inputs">
+                <input class="name" type="text" placeholder='{{ locale["default_name"] }}'/>
+                <button class="start">{{ locale["button_text"] }}</button>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    async function startHandler(e) {
+        const response = await TurvalisusAPI.createUser(
+            document.querySelector('.name').value
+        );
+        switch (response) {
+            case "EILLEGALNAME":
+                alert('{{ locale["illegal_name_alert"] }}');
+                break;
+            case "WUSEREXISTS":
+            default:
+                window.location.pathname = '/select/collections';
+        }
+    }
+    (async function() {
+        document.querySelector('.start').addEventListener('click', startHandler);
+        document.querySelector('.name').addEventListener('keypress', e => {e.key === "Enter" && startHandler(e)})
+
+        const languages = await TurvalisusAPI.getAvailableLanguages();
+        const languageEmojis = await (await fetch("/static/emojis.json")).json();
+        const selectedLang = document.documentElement.lang || "en";
+
+        languages.forEach(lang => {
+            const optionEl = document.createElement("option")
+            optionEl.innerText = languageEmojis[lang]
+            optionEl.value = lang;
+            if (selectedLang === lang) {
+                optionEl.selected = true;
+            }
+           document.querySelector("#lang-select").appendChild(optionEl);
+        });
+    })()
+
+    document.querySelector("#lang-select").addEventListener("change", async e => {
+        const selectedLang = document.querySelector("#lang-select").value
+        await TurvalisusAPI.setUserLanguage(selectedLang);
+        window.location.reload();
+    });
+
+    window.addEventListener('keydown', evt => {
+      if(evt.code === "Space" && evt.target === document.body) {
+          evt.preventDefault();
+      }
+    });
+</script>
+</html>

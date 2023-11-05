@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="{{ locale.lang }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ locale.page_title }}</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.24.0/dist/axios.min.js"></script>
+    <script src="/static/wrapper.min.js"></script>
+    <script src="/static/popup.js"></script>
+    <meta name="theme-color" content="#5643fd"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,200;0,400;1,200;1,400&display=swap');
+        @import url('/static/popup.css');
+    </style>
+    <style>
+        body {
+            background-color: #f1f1f1;
+            color: black;
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+        }
+
+        h2 {
+            font-weight: 400;
+            font-size: 3rem;
+            user-select: none;
+            margin-bottom: 10px;
+        }
+
+        .b {
+            color: #4285f4;
+        }
+
+        .g {
+            color: #34a853;
+        }
+
+        .r {
+            color: #ea4335;
+        }
+
+        .y {
+            color: #fbbc05;
+        }
+
+        .centered {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translate(-50%, 0%);
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding-bottom: 2rem;
+        }
+
+        button {
+            background-color: #fcfbfe;
+            border: none;
+            font-family: 'Work Sans', sans-serif;
+            color: #5643fd;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            width: 75%;
+            font-size: 1.5rem;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: 0.5s;
+        }
+
+        input {
+            width: 40vw;
+            height: 100%;
+            border: none;
+            background-color: #fcfbfe;
+            text-align: center;
+            color: black;
+            font-size: 1rem;
+            font-weight: 400;
+            border-radius: 15px;
+            padding: 10px;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .search_result {
+            width: 60vw;
+            height: 100%;
+            background-color: #fcfbfe;
+            border: 2px solid #fcfbfe;
+            border-radius: 15px;
+            padding: 10px;
+            margin-top: 10px;
+            text-align: left;
+        }
+
+        .search_result p {
+            word-wrap: break-word;
+        }
+
+        .url {
+            color: #34a853;
+        }
+
+        .clickable {
+            text-decoration: underline;
+            cursor: pointer;
+            color: #5643fd;
+        }
+
+        .earn {
+            font-size: 1.5rem;
+        }
+
+        .explaination {
+            font-size: 1.5rem;
+            padding: 20px;
+        }
+
+        @media (max-width: 1000px) {
+            input {
+                width: 80vw;
+            }
+
+            .search_result {
+                width: 85vw;
+            }
+
+            .result h2 {
+                margin-top: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="top-tip" hidden>
+        {{ locale.top_tip }}
+    </div>
+    <div class="centered">
+        <h2><b class="b">G</b><b class="r">o</b><b class="y">o</b><b class="b">l</b><b class="g">g</b><b class="r">e</b></h2>
+        <input type="text" value="{{ content.task.search_query }}" readonly="readonly" tabindex="-1"></input>
+        {% for link in content.task.links %}
+        <div class="search_result">
+            <a tabindex="0" class="clickable">{{link.title | safe}}</a>
+            <p class="url">{{link.url}}</p>
+            <p class="description">{{link.summary}}</p>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="result" hidden>
+        <h2 id="title"></h2>
+        <p class="earn">{{ locale.earned }} <b id="points"></b></p>
+        <p class="explaination"></p>
+        <button id="continue" tabindex="0">{{ locale.continue }}</button>
+    </div>
+    <script>
+        for (let i = 0; i < document.querySelectorAll(".search_result").length; ++i) {
+            handler = async (evt) => {
+                if (evt.code && evt.code !== "Space") return;
+                if (window.hasAnswered) return;
+                const results = await TurvalisusAPI.submitTaskAnswer("{{ content.page }}", i);
+                window.hasAnswered = true;
+                setMobilePopups('.centered');
+                document.getElementById('title').innerText = results.title;
+                document.getElementById('points').innerText = results.points;
+                document.querySelector('.explaination').innerText = results.comment;
+                document.querySelector('.result').hidden = false;
+                document.querySelector(".result").scrollIntoView();
+                document.querySelector("#continue").focus();
+            }
+            document.querySelectorAll(".search_result").item(i).addEventListener("click", handler);
+            document.querySelectorAll(".search_result").item(i).addEventListener("keydown", handler);
+        }
+
+        (async function () {
+            window.hasAnswered = false;
+            handler = (evt) => {
+                if (evt.code && evt.code !== "Space") return;
+                window.location = '/select/collections';
+            };
+            document.getElementById('continue').addEventListener('click', handler);
+            document.getElementById('continue').addEventListener('keydown', handler);
+        })();
+
+        window.addEventListener('keydown', evt => {
+          if(evt.code === "Space") {
+              evt.preventDefault();
+          }
+        });
+    </script>
+</body>
+
+</html>

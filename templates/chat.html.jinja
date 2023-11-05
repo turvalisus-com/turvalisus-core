@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="{{ locale.lang }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimal-ui">
+    <title>{{ locale.page_title }}</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.24.0/dist/axios.min.js"></script>
+    <script src="/static/wrapper.min.js"></script>
+    <script src="/static/popup.js"></script>
+    <meta name="theme-color" content="#5643fd"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,200;0,400;1,200;1,400&display=swap');
+        @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css");
+        @import url("/static/popup.css");
+    </style>
+    <style>
+        body {
+            background-color: #FFFFFF;
+            color: #333333;
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: 400;
+            background: -webkit-linear-gradient(#2AABEE, #229ED9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        header {
+            text-align: right;
+            padding: 20px;
+            margin-right: 30px;
+        }
+
+        .clickable {
+            text-decoration: underline;
+            cursor: pointer;
+            color: #5643fd;
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 2px solid black;
+            background-color: #c3d7ef;
+            display: inline-block;
+        }
+
+        .logo i {
+            margin-right: 1rem;
+        }
+
+        .wrapper {
+            width: 100vw;
+            position: absolute;
+            left: 0;
+            display: flex;
+            flex-direction: row;
+            height: calc(100vh - 95px);
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 30vw;
+            height: 100%;
+            padding: 1rem 1rem 0;
+            box-sizing: border-box;
+            background-color: rgba(42, 171, 238, 0.15);
+            border-top-right-radius: 3rem;
+        }
+
+        .placeholder {
+            width: 70vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .placeholder i {
+            font-size: 4rem;
+        }
+
+        .placeholder .note {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            border-radius: 3rem;
+            background-color: rgba(42, 171, 238, 0.15);
+        }
+
+        .chat-preview {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .chat-preview .texts {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin-left: 1rem;
+        }
+
+        .chat-preview b {
+            font-weight: 400;
+        }
+
+        .chat-preview i {
+            font-weight: 200;
+        }
+
+        .chat-preview-task {
+            width: 100%;
+            margin-bottom: 0.5rem;
+            padding: 1rem 1rem 0.5rem;
+            margin-top: -1rem;
+            cursor: pointer;
+            border-top-right-radius: 3rem;
+        }
+
+        .chat-preview-selected {
+            background-color: rgba(9, 35, 49, 0.5);
+            width: 100%;
+            margin-bottom: 0.5rem;
+            padding: 1rem 1rem 0.5rem;
+            margin-top: -1rem;
+            cursor: pointer;
+            border-top-right-radius: 3rem;
+            color: #ffffff;
+        }
+
+        .name-avatar {
+            border-radius: 50%;
+            height: 3.5rem;
+            width: 3.5rem;
+            padding: 1rem;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.7rem;
+            color: #FFFFFF;
+        }
+
+        .profile_gradient_filler_1 {background: -webkit-linear-gradient(45deg, #FFF6B7, #F6416C);}
+        .profile_gradient_filler_2 {background: -webkit-linear-gradient(135deg,#69FF97, #00E4FF);}
+        .profile_gradient_filler_3 {background: -webkit-linear-gradient(225deg, #81FFEF, #F067B4);}
+        .profile_gradient_task {background: -webkit-linear-gradient(315deg, #FD6585, #0D25B9);}
+
+        .person {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            font-size: 2.5rem;
+            padding: 1rem;
+            background-color: #efefef;
+            border-radius: 1rem;
+            height: 5rem;
+        }
+
+        .profile_name {
+            font-size: 2rem;
+        }
+
+        .profile_avatar {
+            width: 5rem;
+            height: 5rem;
+            display: flex;
+            border-radius: 1rem;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            margin-right: 1rem;
+        }
+
+        .profile_online {
+            font-size: 1rem;
+            margin-left: 0.15rem;
+        }
+
+        .content {
+            display: none;
+            width: 70vw;
+            flex-direction: column;
+            padding: 1.5rem;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+
+        .chat {
+            margin-top: 1rem;
+            border-radius: 1rem;
+            position: relative;
+            padding: 1rem 1rem 0;
+            background-color: #efefef;
+            overflow: scroll;
+			-ms-overflow-style: none;
+			scrollbar-width: none;
+            height: calc(100% - 9rem);
+            margin-bottom: 1rem;
+        }
+
+        .input {
+            position: relative;
+            height: 2rem;
+        }
+
+        .input input {
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 1rem;
+            border-radius: 1rem;
+            border: 1px solid #5643fd;
+            padding: 0.3rem 3rem 0.3rem 1rem;
+        }
+
+        .input i {
+            position: absolute;
+            right: 0;
+            text-align: center;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            background-color: #5643fd;
+            color: #ffffff;
+            width: 3rem;
+            padding: 0.3rem;
+            border-radius: 0 1rem 1rem 0;
+        }
+
+		.chat::-webkit-scrollbar {
+			display: none;
+		}
+
+        .chat .received {
+            padding: 1rem;
+            background-color: #69FF97;
+            border-radius: 0.75rem;
+            width: fit-content;
+            margin: 0 0 1rem;
+        }
+
+        @media (max-width: 1000px) {
+            header {
+                margin: 0;
+                text-align: center;
+            }
+            .sidebar {
+                width: 100vw;
+                border-radius: 0;
+                height: 100%;
+            }
+            .chat-preview-task,
+            .chat-preview-selected {
+                border-radius: 0;
+            }
+            .placeholder {
+                display: none;
+            }
+
+            .chat-preview b {
+                font-size: 1.3rem;
+            }
+
+            .new_message {
+                font-size: 1rem !important;
+            }
+
+            .content {
+                width: 100vw;
+                padding-top: 0;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .logo b {
+                display: none;
+            }
+
+            .logo i {
+                margin: 0;
+            }
+
+            .person {
+                height: 2rem;
+            }
+
+            .profile_name {
+                font-size: 1.3rem;
+            }
+
+            .profile_online {
+                font-size: 0.7rem;
+            }
+
+            .profile_avatar {
+                width: 3rem;
+                height: 3rem;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="top-tip" hidden>
+        {{ locale.top_tip }}
+    </div>
+    <header>
+        <div class="logo">
+            <i class="bi bi-send"></i><b>{{ locale.service_name }}</b>
+        </div>
+    </header>
+
+    <div class="wrapper">
+        <div class="sidebar">
+            <div class="chat-preview chat-preview-task" tabindex="0">
+                <div class="name-avatar profile_gradient_task">
+                    {{ content.task.avatar }}
+                </div>
+                <div class="texts">
+                    <b>{{ content.task.name }}</b>
+                    <b class="new_message">{{ locale.task_chat.notice }}</b>
+                </div>
+            </div>
+            {% for chat in locale.context_chats %}
+            <div class="chat-preview">
+                <div class="name-avatar profile_gradient_filler_{{ loop.index }}">
+                    {{ chat.avatar }}
+                </div>
+                <div class="texts">
+                    <b>{{ chat.name }}</b>
+                    <i>{{ chat.message }}</i>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="placeholder">
+            <div class="note">
+                <i class="bi bi-people"></i>
+                {{ locale.hint_placeholder }}
+            </div>
+        </div>
+        <div class="content">
+            <div class="person">
+                <div class="profile_pic">
+                    <div class="profile_avatar profile_gradient_task">
+                        {{ content.task.avatar }}
+                    </div>
+                </div>
+                <div class="profile_info">
+                    <div class="profile_name">{{ content.task.name }}</div>
+                    <div class="profile_online">{{ locale.task_chat.status }}</div>
+                </div>
+            </div>
+            <div class="chat">
+                {% for message in content.task.messages %}
+                <p class="{{ message.type }}" data-delay="{{ message.delay }}" hidden="hidden">{{ message.content | safe }}</p>
+                {% endfor %}
+            </div>
+            <div class="input">
+                <input type="text" tabindex="-1"/>
+                <i class="bi bi-arrow-right-circle"></i>
+            </div>
+        </div>
+    </div>
+    <div class="prompt" hidden>
+        <i id="grip" class="bi bi-grip-horizontal"></i>
+        <h2>{{ content.question.prompt }}</h2>
+        {% for option in content.question.options %}
+        <button class="option" value="{{ loop.index - 1 }}">{{ option }}</button>
+        {% endfor %}
+    </div>
+    <div class="result" hidden>
+        <h2 id="title"></h2>
+        <p class="earn">{{ locale.earned }} <b id="points"></b></p>
+        <p class="explaination"></p>
+        <button id="continue">{{ locale.continue }}</button>
+    </div>
+    <script>
+        const incoming_list_entry = document.querySelector(".chat-preview-task");
+        handler = async evt => {
+            if (evt.code && evt.code !== "Space") return;
+            incoming_list_entry.classList.remove("chat-preview-task");
+            incoming_list_entry.classList.add("chat-preview-selected");
+
+            if (window.innerWidth < 1000) {
+                document.querySelector(".sidebar").style.display = "none";
+                window.scrollTo(0, 1);
+            }
+
+            document.querySelector(".placeholder").style.display = "none";
+            document.querySelector(".content").style.display = "flex";
+
+            for (let i = 0; i < document.querySelector('.chat').childElementCount; i++) {
+                const thisMessage = document.querySelector('.chat').children[i];
+                await sleep(parseInt(thisMessage.dataset.delay));
+                thisMessage.hidden = false;
+                document.querySelector('.chat').scrollTop = document.querySelector('.chat').scrollHeight;
+            }
+
+            setTimeout(() => {
+                setMobilePopups(".content");
+                document.querySelector('.prompt').hidden = false;
+            }, 1000 * 5);
+        };
+
+        incoming_list_entry.addEventListener("click", handler);
+        incoming_list_entry.addEventListener("keydown", handler);
+
+        async function sleep(s) {
+            return new Promise(resolve => setTimeout(resolve, s * 1000));
+        }
+
+        document.querySelectorAll('.option').forEach(el => {
+            handler = async (evt) => {
+                if (evt.code && evt.code !== "Space") return;
+                const results = await TurvalisusAPI.submitTaskAnswer("{{ content.page }}", el.value);
+                document.getElementById('title').innerText = results.title;
+                document.getElementById('points').innerText = results.points;
+                document.querySelector('.explaination').innerText = results.comment;
+                document.querySelector('.prompt').hidden = true;
+                document.querySelector('.result').hidden = false;
+                document.querySelector(".result").scrollIntoView();
+                document.querySelector("#continue").focus();
+                handler = evt => {
+                    if (evt.code && evt.code !== "Space") return;
+                    window.location = '/select/collections';
+                };
+                document.getElementById('continue').addEventListener('click', handler);
+                document.getElementById('continue').addEventListener('keydown', handler);
+            };
+            el.addEventListener('click', handler);
+            el.addEventListener('keydown', handler);
+        });
+        dragElement(document.querySelector("#grip"), document.querySelector(".prompt"));
+
+        window.addEventListener('keydown', evt => {
+          if(evt.code === "Space") {
+              evt.preventDefault();
+          }
+        });
+    </script>
+</body>
+
+</html>

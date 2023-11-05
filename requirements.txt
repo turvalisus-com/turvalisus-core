@@ -1,0 +1,6 @@
+sanic==21.6.2
+Jinja2==3.0.3
+jsmin==3.0.0
+pymongo[srv]==4.0
+python-dotenv==0.21.0
+tqdm==4.64.1

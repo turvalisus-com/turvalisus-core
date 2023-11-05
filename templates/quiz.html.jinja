@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="{{ locale.lang }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{{ locale.page_title }}</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.24.0/dist/axios.min.js"></script>
+    <script src="/static/wrapper.min.js"></script>
+    <meta name="theme-color" content="#5643fd"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,200;0,400;1,200;1,400&display=swap');
+        @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css");
+    </style>
+    <style>
+        body {
+            background-color: #fff;
+            color: #5643fd;
+            font-family: 'Montserrat', sans-serif;
+            padding: 5rem 3.5rem 3.5rem;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            gap: 1rem;
+
+            scroll-behavior: smooth;
+        }
+
+        .wrapper {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .question {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            width: 1000px;
+
+            box-sizing: border-box;
+
+            border: 1px solid #5643fd;
+            border-radius: 1rem;
+
+            padding: 1rem;
+            gap: 1rem;
+        }
+
+        .text {
+            margin-bottom: 1rem;
+            margin-top: 1rem;
+
+            text-align: center;
+        }
+
+        .radio {
+            display: flex;
+            flex-direction: row;
+
+            align-items: center;
+
+            gap: 1rem;
+
+            cursor: pointer;
+        }
+
+        .radio p {
+            margin: 0;
+        }
+
+        .submit {
+            width: 1000px;
+
+            border: 1px solid #ffffff;
+            border-radius: 1rem;
+
+            padding: 1rem;
+
+            background-color: #5643fd;
+            color: #ffffff;
+
+            font-size: 1rem;
+
+            cursor: pointer;
+        }
+
+        .logo {
+            font-size: 3rem;
+
+            position: absolute;
+            top: 1rem;
+
+            user-select: none;
+        }
+
+        .tag {
+            position: absolute;
+            right: 0;
+            top: 0;
+            margin-top: -1rem;
+            margin-right: -1rem;
+
+            background-color: #ffffff;
+
+            border: 5px solid #fff;
+            border-radius: 50%;
+
+            font-size: 3rem;
+        }
+
+        .accent-correct {
+            border: 1px solid green;
+        }
+
+        .earned {
+            color: green;
+        }
+
+        .accent-missing {
+            border: 1px solid #ffe278;
+        }
+
+        .bi-exclamation-circle-fill {
+            color: #ffe278;
+        }
+
+        .accent-incorrect {
+            border: 1px solid red;
+        }
+
+        .bi-dash-circle-fill {
+            color: red;
+        }
+
+        @media (max-width: 1200px) {
+            body {
+                padding: 5rem 1rem 1rem;
+            }
+
+            .question {
+                width: 100%;
+            }
+
+            .submit {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="logo">
+        Turvalisus
+    </div>
+    <div class="wrapper">
+        {% for question in content.question %}
+        {% set question_ord = loop.index0 %}
+        <div class="question">
+            <span class="text">{{ question.text }}</span>
+            {% for option in question.options %}
+            <div class="radio" onclick="setOption({{ question_ord }}, {{ loop.index0 }})" tabindex="0">
+                <i class="bi bi-circle"></i>
+                <p>{{ option }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+    <button class="submit" tabindex="0">{{ locale.submit }}</button>
+    <script>
+        const questionsCount = document.querySelector(".wrapper").children.length;
+        const answers = Array(questionsCount);
+
+        isSmallScreen = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0) <= 1200;
+
+        setOption = (q, o) => {
+            if (answers[q] !== null) {
+                const previousSelection = document.querySelectorAll(".question").item(q).querySelectorAll(".radio")
+                    .item(answers[q]).children.item(0);
+                previousSelection.classList.remove("bi-check-circle");
+                previousSelection.classList.add("bi-circle");
+            }
+            answers[q] = o;
+            const button = document.querySelectorAll(".question").item(q).querySelectorAll(".radio").item(o);
+            button.children.item(0).classList.remove("bi-circle");
+            button.children.item(0).classList.add("bi-check-circle");
+        }
+
+        handler = async evt => {
+            if (evt.code && evt.code !== "Space") return;
+            let haveScrolledTo = false;
+            let hasMissingAnswers = false;
+
+            for (let i = 0; i < questionsCount; ++i) {
+                const question = document.querySelectorAll(".question").item(i);
+                if (answers[i] === undefined) {
+                    hasMissingAnswers = true;
+                    if (question.children.namedItem("tag") === null) {
+                        const tag = document.createElement("i");
+                        tag.classList.add("bi", "bi-exclamation-circle-fill", "tag");
+                        tag.id = "tag";
+                        question.appendChild(tag);
+                    }
+                    if (!haveScrolledTo) {
+                        question.scrollIntoView({behavior: "smooth", block: "center"});
+                        haveScrolledTo = true;
+                    }
+                    if (isSmallScreen) {
+                        question.style.paddingTop = "2rem";
+                    }
+                    question.classList.add("accent-missing");
+                } else {
+                    question.classList.remove("accent-missing");
+                    if (question.children.namedItem("tag") !== null) {
+                        question.removeChild(question.children.namedItem("tag"))
+                    }
+                    if (isSmallScreen) {
+                        question.style.paddingTop = "1rem";
+                    }
+                }
+            }
+
+            if (!hasMissingAnswers) {
+                const results = await TurvalisusAPI.submitQuizAnswer("{{ content.page }}", JSON.stringify(answers));
+                for (let i = 0; i < questionsCount; ++i) {
+                    const question = document.querySelectorAll(".question").item(i)
+                    const earned = results[i];
+                    if (earned === 0) {
+                        question.classList.add("accent-incorrect");
+                        const tag = document.createElement("i");
+                        tag.classList.add("bi", "bi-dash-circle-fill", "tag");
+                        question.appendChild(tag);
+                    } else {
+                        question.classList.add("accent-correct");
+                        const tag = document.createElement("i");
+                        tag.classList.add("earned", "tag");
+                        tag.innerText = `+${earned}`;
+                        question.appendChild(tag);
+                    }
+                    if (isSmallScreen) {
+                        question.style.paddingTop = "2rem";
+                    }
+                }
+                const submitButton = document.querySelector(".submit");
+                submitButton.innerText = "{{ locale.continue }}";
+                submitButton.focus();
+                handler = evt => {
+                    if (evt.code && evt.code !== "Space") return;
+                    window.location.pathname = "/";
+                };
+                submitButton.addEventListener("click", handler);
+                submitButton.addEventListener("keydown", handler);
+            }
+        };
+
+        document.querySelector(".submit").addEventListener("click", handler);
+        document.querySelector(".submit").addEventListener("keydown", handler);
+
+        document.querySelectorAll(".radio").forEach(el => {
+           el.addEventListener("keydown", evt => {
+               if (evt.code && evt.code !== "Space") return;
+               evt.target.click();
+           });
+        });
+
+        window.addEventListener('keydown', evt => {
+          if(evt.code === "Space") {
+              evt.preventDefault();
+          }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="{{ locale.lang }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ locale.page_title }}</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.24.0/dist/axios.min.js"></script>
+    <script src="/static/wrapper.min.js"></script>
+    <script src="/static/popup.js"></script>
+    <meta name="theme-color" content="#5643fd"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,200;0,400;1,200;1,400&display=swap');
+        @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css");
+        @import url("/static/popup.css");
+    </style>
+    <style>
+        body {
+            background-color: #f6f8fc;
+            color: black;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.3rem;
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h2 {
+            font-weight: 400;
+            font-size: 2.5rem;
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: 400;
+        }
+
+        header {
+            text-align: left;
+            padding: 20px 20px 20px calc(20px + 1rem);
+            margin-right: 30px;
+            position: sticky;
+        }
+
+        .sidebar {
+            margin: 0;
+            padding: 0 0 0 1rem;
+            width: min(400px, 30vw);
+            height: 100%;
+            overflow: auto;
+        }
+
+        .sidebar a {
+            display: block;
+            color: black;
+            padding: 16px;
+            text-decoration: none;
+            border-radius: 5rem;
+        }
+
+        .sidebar a.active {
+            background-color: #d3e3fd;
+        }
+
+        .sidebar a:hover:not(.active) {
+            background-color: #ebeef0;
+        }
+
+        .senderData {
+            color: rgb(184, 184, 184);
+        }
+
+        .email {
+            font-size: 1.5rem;
+        }
+
+        .clickable {
+            text-decoration: underline;
+            cursor: pointer;
+            color: #5643fd;
+        }
+
+        .content {
+            position: absolute;
+            top: 5rem;
+            left: min(400px, 30vw);
+            margin-left: 2rem;
+            margin-right: 2rem;
+            border-bottom: 2px solid #ebeef0;
+        }
+
+        .list-card {
+            background-color: #f2f6fc;
+            border-top: 2px solid #ebeef0;
+            padding: 0.3rem 0.3rem 0.3rem 2rem;
+            width: calc(100vw - min(400px, 30vw) - 6rem)
+        }
+
+        .card-task {
+            background-color: #fff;
+            border-top: 2px solid #ebeef0;
+            padding: 0.3rem 0.3rem 0.3rem 2rem;
+            cursor: pointer;
+            width: calc(100vw - min(400px, 30vw) - 6rem)
+        }
+
+        .list-card i,
+        .card-task i {
+            padding-right: 1rem;
+            font-weight: 200;
+        }
+
+        .list-card b,
+        .card-task b {
+            padding-right: 0.5rem;
+        }
+
+
+        @media(max-width: 1439px) {
+            .sidebar {
+                display: none;
+            }
+
+            .content {
+                left: 0;
+            }
+
+            .card-task,
+            .list-card {
+                width: calc(100vw - 6rem)
+            }
+        }
+
+        @media(max-width: 770px) {
+            header {
+                width: 100vw;
+                text-align: center;
+                margin: 0;
+                padding: 30px 0 0;
+            }
+
+            .incoming-list .bi {
+                display: none;
+            }
+
+            .incoming-list p {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .incoming-list h3 {
+                display: none;
+            }
+
+            .incoming-list {
+                padding-top: 1rem;
+                width: 100%;
+            }
+
+            .content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .list-card,
+            .card-task {
+                width: 100%;
+                padding: 0.3rem 1rem;
+                box-sizing: border-box;
+            }
+
+            .message {
+                padding-left: 0.75rem;
+                padding-right: 0.75rem;
+            }
+        }
+
+        @media(max-width: 500px) {
+            .logo span {
+                display: none;
+            }
+        }
+
+        @media(max-width: 1000px) {
+            #grip {
+                display: none;
+            }
+
+            #top-tip {
+                background-color: #5643fd;
+                color: #ffffff;
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100vw;
+                font-size: 1rem;
+                text-align: center;
+                padding-bottom: 0.1rem;
+                z-index: 999;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="top-tip" hidden>
+        {{ locale.top_tip }}
+    </div>
+    <header>
+        <div class="logo">
+            <b><i class="bi bi-envelope"></i> <span>Jmail</span></b>
+        </div>
+    </header>
+    <div class="sidebar">
+        <a class="active"><i class="bi bi-inbox-fill"></i> <b>{{ locale.incoming }}</b></a>
+        <a><i class="bi bi-send"></i> {{ locale.sent }}</a>
+        <a><i class="bi bi-exclamation-octagon"></i> {{ locale.spam }}</a>
+        <a><i class="bi bi-box-arrow-right"></i> {{ locale.exit }}</a>
+    </div>
+    <div class="content">
+        <div class="incoming-list">
+            <h3>{{ locale.inbox }}:</h3>
+            <div id="email-clickable" class="card-task" tabindex="0">
+                <p><i class="bi bi-square"></i><i class="bi bi-star"></i><i
+                        class="bi bi-box-arrow-up"></i><b>{{ content.task.sender }}</b><i>{{ content.task.email_title }}</i></p>
+            </div>
+            {% for email in locale.context %}
+            <div class="list-card">
+                <p><i class="bi bi-square"></i><i class="bi bi-star"></i><i
+                        class="bi bi-box-arrow-up"></i><b>{{ email.sender }}</b><i>{{ email.subject }}</i></p>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="message" hidden>
+            <h2>{{ content.task.email_title }}</h2>
+            <p class="senderData">{{ content.task.sender }} ({{ content.task.sender_address }}) - {{ locale.sent_at }}</p>
+            <p class="email">{{ content.task.body | safe }}</p>
+        </div>
+    </div>
+    <div class="prompt" hidden>
+        <i id="grip" class="bi bi-grip-horizontal"></i>
+        <h2>{{ content.question.prompt }}</h2>
+        {% for option in content.question.options %}
+        <button class="option" value="{{ loop.index - 1 }}" tabindex="0">{{ option }}</button>
+        {% endfor %}
+    </div>
+    <div class="result" hidden>
+        <h2 id="title"></h2>
+        <p class="earn">{{ locale.earned }} <b id="points"></b></p>
+        <p class="explaination"></p>
+        <button id="continue" tabindex="0">{{ locale.continue }}</button>
+    </div>
+    <script>
+        function openEmail() {
+            document.querySelector('.incoming-list').hidden = true;
+            document.querySelector('.message').hidden = false;
+        }
+    </script>
+    <script>
+        (async function () {
+            const task = null;
+            document.querySelectorAll('.option').forEach(el => {
+                handler = async (evt) => {
+                    if (evt.code && evt.code !== "Space") return;
+                    const results = await TurvalisusAPI.submitTaskAnswer("{{ content.page }}", el.value);
+                    document.getElementById('title').innerText = results.title;
+                    document.getElementById('points').innerText = results.points;
+                    document.querySelector('.explaination').innerText = results.comment;
+                    document.querySelector('.prompt').hidden = true;
+                    document.querySelector('.result').hidden = false;
+                    document.querySelector(".result").scrollIntoView()
+                    document.querySelector("#continue").focus();
+                    handler = (evt) => {
+                        if (evt.code && evt.code !== "Space") return;
+                        window.location = '/select/collections';
+                    };
+                    document.getElementById('continue').addEventListener('click', handler);
+                    document.getElementById('continue').addEventListener('keydown', handler);
+                };
+                el.addEventListener('click', handler);
+                el.addEventListener('keydown', handler);
+            });
+            handler = (evt) => {
+                if (evt.code && evt.code !== "Space") return;
+                openEmail();
+                setTimeout(() => {
+                    setMobilePopups(".content");
+                    document.querySelector('.prompt').hidden = false;
+                }, 1000 * 5);
+            };
+            document.getElementById('email-clickable').addEventListener('click', handler);
+            document.getElementById('email-clickable').addEventListener('keydown', handler);
+        })();
+        dragElement(document.querySelector("#grip"), document.querySelector(".prompt"));
+
+        window.addEventListener('keydown', evt => {
+          if(evt.code === "Space") {
+              evt.preventDefault();
+          }
+        });
+    </script>
+</body>
+
+</html>
